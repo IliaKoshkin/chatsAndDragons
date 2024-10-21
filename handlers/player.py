@@ -44,7 +44,15 @@ async def decrease_ability(ability, callback: CallbackQuery, state: FSMContext):
         return curr_ability_points
     await state.update_data({"p": curr_ability_points, ability: curr_ability})
     return curr_ability_points
-    
+
+async def check_phase02(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    if data["p"] != 0:
+        await callback.answer(text="Не все очки способностей распределены.", show_alert=True)
+        return False
+    else:
+        return True
+
 
 async def get_keyboard(type, state: FSMContext):
     state_data = await state.get_data()
@@ -145,3 +153,18 @@ async def modify_ability(callback: CallbackQuery, state: FSMContext):
             reply_markup = await get_keyboard("phase02", state)
             await callback.message.edit_reply_markup(reply_markup=reply_markup)
 
+@router.callback_query(F.data == "commit_phase02")
+async def modify_ability(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(PlayerCreation.phase_02)
+    action = callback.data.split("_")[1]
+    match action[1]:
+        case "+":
+            curr_ability_points = await increase_ability(action[0], callback, state)
+            await callback.message.edit_text(text=f"Настройка способностей героя\nДоступно очков распределения способностей: {curr_ability_points}")
+            reply_markup = await get_keyboard("phase02", state)
+            await callback.message.edit_reply_markup(reply_markup=reply_markup)
+        case "-":
+            curr_ability_points = await decrease_ability(action[0], callback, state)
+            await callback.message.edit_text(text=f"Настройка способностей героя\nДоступно очков распределения способностей: {curr_ability_points}")
+            reply_markup = await get_keyboard("phase02", state)
+            await callback.message.edit_reply_markup(reply_markup=reply_markup)
