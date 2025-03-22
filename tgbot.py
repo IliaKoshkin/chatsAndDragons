@@ -5,8 +5,8 @@ from aiogram.filters.command import Command
 from decouple import config
 from aiogram.fsm.storage.redis import RedisStorage
 from handlers import player
-redis_url = config('REDIS_URL')
-storage = RedisStorage.from_url(config('REDIS_URL'))
+redis_url = config('127.0.0.1')
+storage = RedisStorage.from_url(redis_url)
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
 # Объект бота
